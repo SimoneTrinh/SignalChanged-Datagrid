@@ -20,9 +20,9 @@ namespace Signal_Datagrid
             this.DataContext = this;
 
             // Create the items
-            var btc = new Item("BTC");
-            var eth = new Item("ETH");
-            var ltc = new Item("LTC");
+            var btc = new Item("BTC", 0);
+            var eth = new Item("ETH", 0);
+            var ltc = new Item("LTC", 0);
 
             // Add the items to the collection
             Items.Add(btc);
@@ -47,12 +47,20 @@ namespace Signal_Datagrid
             {
                 foreach (var item in Items)
                 {
+                    double minValue = 0.0000;
+                    double maxValue = 1000.0000;
+                    double randomNumber = minValue + (random.NextDouble() * (maxValue - minValue));
+                    randomNumber = Math.Round(randomNumber, 4, MidpointRounding.AwayFromZero);
+
+                    //double roundedNumber = Math.Floor(randomNumber * 100) / 100.000;
                     // Randomly adjust the price up or down
-                    var priceChange = random.NextDouble() * 10 - 5;
-                    item.Price += priceChange;
+                    //var priceChange = double.Parse(Math.Round((random.NextDouble() * 10 - 5), 4, MidpointRounding.AwayFromZero).ToString("0.0000"));
+                    var currentPrice = item.Price;
+                    var newPrice = randomNumber;
+                    item.Price = newPrice;
 
                     // Update the trend
-                    if (priceChange > 0)
+                    if (currentPrice < newPrice)
                     {
                         item.Trend = "up";
                     }
@@ -60,17 +68,21 @@ namespace Signal_Datagrid
                     {
                         item.Trend = "down";
                     }
+                    //Fix the rounding because it plus from previous number so it can not use the pure rounding.
+                    //TODO: Add % changed and regarding with text color, need to manage data context
+
                 }
 
-                Thread.Sleep(random.Next(3000, 5000));
+                Thread.Sleep(random.Next(1000, 3000));
             }
         }
 
         public class Item : INotifyPropertyChanged
         {
-            public Item(string name)
+            public Item(string name, double price)
             {
                 Name = name;
+                Price = price;
             }
 
             private string _name;
