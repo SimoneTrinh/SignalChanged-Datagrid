@@ -20,9 +20,9 @@ namespace Signal_Datagrid
             this.DataContext = this;
 
             // Create the items
-            var btc = new Item("BTC", 0);
-            var eth = new Item("ETH", 0);
-            var ltc = new Item("LTC", 0);
+            var btc = new Item("BTC", 0, "0.00%");
+            var eth = new Item("ETH", 0, "0.00%");
+            var ltc = new Item("LTC", 0, "0.00%");
 
             // Add the items to the collection
             Items.Add(btc);
@@ -58,7 +58,10 @@ namespace Signal_Datagrid
                     var currentPrice = item.Price;
                     var newPrice = randomNumber;
                     item.Price = newPrice;
-
+                    //Calculate the % change
+                    var percentChange = ((newPrice - currentPrice) / currentPrice);
+                    var roundChange = Math.Round(percentChange * 100, 2, MidpointRounding.AwayFromZero);
+                    item.Change = roundChange.ToString(CultureInfo.CurrentCulture) + "%";
                     // Update the trend
                     if (currentPrice < newPrice)
                     {
@@ -79,10 +82,11 @@ namespace Signal_Datagrid
 
         public class Item : INotifyPropertyChanged
         {
-            public Item(string name, double price)
+            public Item(string name, double price, string change)
             {
                 Name = name;
                 Price = price;
+                Change = change;
             }
 
             private string _name;
@@ -121,7 +125,19 @@ namespace Signal_Datagrid
                 }
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
+            private string _change;
+
+            public string Change
+            {
+                get => _change;
+                set
+                {
+                    _change = value;
+                    NotifyPropertyChanged(nameof(Change));
+                }
+            }
+
+            public event PropertyChangedEventHandler? PropertyChanged;
 
             private void NotifyPropertyChanged(string propertyName)
             {
@@ -225,5 +241,27 @@ namespace Signal_Datagrid
         }
     }
 
+    public class ChangeColorConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2 && values[0] is string trend && values[1] is string change)
+            {
+                if (trend == "up")
+                {
+                    return new SolidColorBrush(Colors.Green);
+                }
+                else if (trend == "down")
+                {
+                    return new SolidColorBrush(Colors.Red);
+                }
+            }
+            return new SolidColorBrush(Colors.Transparent); // Default background color
+        }
 
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

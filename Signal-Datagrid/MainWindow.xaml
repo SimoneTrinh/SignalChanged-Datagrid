@@ -10,6 +10,7 @@
     <Window.Resources>
         <local:TrendColorConverter x:Key="TrendColorConverter"/>
         <local:TrendBackgroundConverter x:Key="TrendBackgroundConverter"/>
+        <local:ChangeColorConverter x:Key="ChangeColorConverter"/>
     </Window.Resources>
 
     <Grid>
@@ -35,6 +36,25 @@
                             </Setter>-->
                             <Setter Property="Background"
                                     Value="{Binding Trend, Converter={StaticResource TrendBackgroundConverter}}"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="% Change" 
+                                    Binding="{Binding Change}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <!--<Setter Property="Foreground"
+                                    Value="{Binding Change, Converter={StaticResource ChangeColorConverter}}">
+                            </Setter>-->
+
+                            <Setter Property="Foreground">
+                                <Setter.Value>
+                                    <MultiBinding Converter="{StaticResource ChangeColorConverter}">
+                                        <Binding Path="Trend" />
+                                        <Binding Path="Change" />
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
